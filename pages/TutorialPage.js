@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 
-export default function TutorialPage() {
+export default function TutorialPage({navigation}) {
   const [recording, setRecording] = useState(null);
   const [recordedURI, setRecordedURI] = useState(null);
 
-  // 🔐 마이크 권한 요청
   useEffect(() => {
     const getPermission = async () => {
       const response = await Audio.requestPermissionsAsync();
@@ -17,7 +16,6 @@ export default function TutorialPage() {
     getPermission();
   }, []);
 
-  // 🎙️ 녹음 시작
   const startRecording = async () => {
     try {
       const { granted } = await Audio.requestPermissionsAsync();
@@ -39,7 +37,6 @@ export default function TutorialPage() {
     }
   };
 
-  // ⏹️ 녹음 중지
   const stopRecording = async () => {
     try {
       await recording.stopAndUnloadAsync();
@@ -67,9 +64,17 @@ export default function TutorialPage() {
       </TouchableOpacity>
 
       {recordedURI && (
-        <Text style={styles.result}>✅ 녹음 완료! 파일 위치: {recordedURI}</Text>
+        <Text style={styles.result}>✅ 녹음 완료!</Text>
       )}
+
+<TouchableOpacity style={styles.recordButton} 
+onPress={function(){navigation.navigate('Test')}}>
+      <Text style={styles.buttonText}>
+        테스트 시작
+      </Text>
+      </TouchableOpacity>
     </View>
+    
   );
 }
 

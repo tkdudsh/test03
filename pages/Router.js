@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import AppMainPage from './AppMainPage';
 import TutorialPage from './TutorialPage';
+import TestPage from './TestPage';
+import ResultPage from './ResultPage';
 
 
 const Stack = createNativeStackNavigator();
@@ -14,6 +16,8 @@ export default function Router() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={AppMainPage} />
         <Stack.Screen name="Tutorial" component={TutorialPage} />
+        <Stack.Screen name="Test" component={TestPage} />
+        <Stack.Screen name="Result" component={ResultPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
