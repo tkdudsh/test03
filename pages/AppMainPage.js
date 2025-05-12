@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity,StyleSheet ,Text,View,Switch,TextInput} from "react-native";
+import { TouchableOpacity,StyleSheet ,Text,View,Switch,TextInput,Alert} from "react-native";
 import { KeyboardAvoidingView, ScrollView } from "react-native";
 import{ useState } from "react";
 
@@ -8,11 +8,49 @@ export default function AppMainPage({navigation}) {
     const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
+  const [errGender, setErrGender] = useState(false);
+  const [errAge, setErrAge] = useState(false);
+  const [errName, setErrName] = useState(false);
 
 
     const [DarkMode,setDarkMode]=useState(false);
     const handleSubmit = () => {
-  console.log(`이름: ${name}, 나이: ${age}, 성별: ${gender}`);
+      let hasError=false;
+
+      if(!name.trim()){
+        setErrName(true);
+        hasError = true;
+        Alert.alert("이름을 입력해주세요.");
+      }
+      else{
+        setErrName(false);
+        
+      }
+
+      if(!age.trim()){
+        setErrAge(true);
+        hasError = true;
+        Alert.alert("나이를 입력해주세요.");
+      }
+      else{
+        setErrAge(false);
+        
+      }
+
+      if(!gender.trim()){
+        setErrGender(true);
+        hasError = true;
+        Alert.alert("성별을 입력해주세요.");
+      }
+      else{
+        setErrGender(false);
+        
+      }
+
+      if (!hasError) {
+        navigation.navigate('Tutorial');    
+    }
+    
 };
 
 
@@ -38,36 +76,74 @@ export default function AppMainPage({navigation}) {
                 <Text style={[styles.warningText, { color: textColor }]}>- 검사 중 스마트폰은 움직이지 않도록 해주세요.</Text>
               </View>
 
-              <View style={styles.container}>
+              <View>
       <Text style={styles.title}>사용자 정보 입력</Text>
 
       <TextInput
-        style={styles.input}
+
+      style={[
+    styles.input,
+    { borderColor: errName ? '#FF0000' : '#ccc' }
+  ]}
         placeholder="이름"
         value={name}
-        onChangeText={setName}
+        onChangeText={(text) => {
+    setName(text);
+    if (text.trim()) setErrName(false);
+  }}
       />
 
       <TextInput
-        style={styles.input}
+      
+        style={[
+          styles.input,
+          {borderColor:errAge? '#FF0000' : '#ccc'}]}
         placeholder="나이"
         keyboardType="numeric"
         value={age}
-        onChangeText={setAge}
+        onChangeText={(text) => {
+    setAge(text);
+    if (text.trim()) setErrAge(false);
+  }}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="성별 (남 / 여)"
-        value={gender}
-        onChangeText={setGender}
-      />
+      <View style={styles.genderContainer}>
+  <TouchableOpacity
+    style={[
+      styles.genderButton,
+      gender === '남' && styles.genderSelected
+    ]}
+    onPress={() => setGender('남')}
+  >
+    <Text style={styles.genderText}>남자</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={[
+      styles.genderButton,
+      gender === '여' && styles.genderSelected
+    ]}
+    onPress={() => setGender('여')}
+  >
+    <Text style={styles.genderText}>여자</Text>
+  </TouchableOpacity>
+</View>
+
+{errGender && (//true일 때만 출력.
+  <View style={{ alignItems: 'center', marginTop: 5 }}>
+    <Text style={{ color: '#FF0000', fontSize: 14 }}>
+      성별을 선택해주세요.
+    </Text>
+  </View>
+)}
 
     </View>
               <TouchableOpacity style={[styles.testButton, { backgroundColor: DarkMode ? "#5DADE2" : "#4A90E2" }]}
                onPress={function(){
-                navigation.navigate('Tutorial'); 
-               handleSubmit();}}>
+
+              
+              handleSubmit();
+               }}>
                   <Text style={styles.testButtonText}>
                       검사하기
                   </Text>
@@ -131,7 +207,42 @@ const styles = StyleSheet.create({
         top: 70,
         right: 16,
     },
-    title: { fontSize: 24, fontWeight: 'bold', marginBottom: 30 },
-  input: { width: 250, height: 40, borderColor: '#ccc', borderWidth: 1, borderRadius: 8, marginBottom: 15, paddingHorizontal: 10 },
-  button: { backgroundColor: '#4A90E2', padding: 15, borderRadius: 10 },
+    title: { 
+      fontSize: 24, 
+      fontWeight: 'bold', 
+      marginBottom: 30 
+    },
+  input: { 
+    width: 250, 
+    height: 40, borderColor: '#ccc', 
+    borderWidth: 1, 
+    borderRadius: 8, 
+    marginBottom: 15, 
+    paddingHorizontal: 10 
+  },
+  genderContainer: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  marginVertical: 15,
+},
+genderButton: {
+  borderWidth: 1,
+  borderColor: '#ccc',
+  borderRadius: 8,
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  marginHorizontal: 5,
+  backgroundColor: '#fff',
+},
+genderSelected: {
+  borderColor: '#4A90E2',
+  backgroundColor: '#E6F0FA',
+},
+genderText: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: '#111',
+},
+  
+  
 });
