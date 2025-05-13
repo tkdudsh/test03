@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Image } from 'react-native';
 import { Audio } from 'expo-av';
+import useRecordingsStore from '../store/recordingsStore';
 
 export default function ImageJudgementPage({ navigation }) {
   const speechTasks = [
@@ -11,6 +12,9 @@ export default function ImageJudgementPage({ navigation }) {
   const [recordingIndex, setRecordingIndex] = useState(null);
   const [recording, setRecording] = useState(null);
   const [recordings, setRecordings] = useState(Array(speechTasks.length).fill(null));
+
+
+  const addRecording = useRecordingsStore((state) => state.addRecording);
 
   const startRecording = async (index) => {
     try {
@@ -42,6 +46,7 @@ export default function ImageJudgementPage({ navigation }) {
 
       console.log(`문제 ${recordingIndex + 1} 녹음 파일:`, uri);
 
+      addRecording('Image',url);
       setRecording(null);
       setRecordingIndex(null);
     } catch (err) {

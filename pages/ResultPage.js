@@ -5,20 +5,20 @@ export default function ResultPage({ navigation }) {
   const result = '주의가 필요합니다 ⚠️'; // 추후 API 응답 기반으로 변경
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>📊 검사 결과</Text>
+    <ScrollView style={{ padding: 20 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>📂 녹음 파일 모음</Text>
+      {Object.entries(recordings).map(([page, uris]) => (
+        <View key={page}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{page}</Text>
+          {uris.map((uri, idx) => (
+            <Text key={idx} style={{ color: 'gray' }}>{uri}</Text>
 
-      <View style={styles.resultBox}>
-        <Text style={styles.resultText}>{result}</Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('Main')}
-      >
-        <Text style={styles.buttonText}>홈으로 돌아가기</Text>
-      </TouchableOpacity>
-    </View>
+            
+          ))}
+        </View>
+        
+      ))}
+    </ScrollView>
   );
 }
 

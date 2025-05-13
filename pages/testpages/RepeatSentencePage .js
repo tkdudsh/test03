@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Audio } from 'expo-av';
+import useRecordingsStore from '../store/recordingsStore';
+
 
 export default function RepeatSentencePage({ navigation }) {
   const speechTasks = [
@@ -12,6 +14,8 @@ export default function RepeatSentencePage({ navigation }) {
   const [recordingIndex, setRecordingIndex] = useState(null);         // 현재 녹음 중인 인덱스
   const [recording, setRecording] = useState(null);                   // 녹음 객체
   const [recordings, setRecordings] = useState(Array(speechTasks.length).fill(null));   // 녹음 파일 uri 배열
+
+  const addRecording = useRecordingsStore((state) => state.addRecording); 
 
   const startRecording = async (index) => {
     try {
@@ -44,6 +48,8 @@ export default function RepeatSentencePage({ navigation }) {
 
       console.log(`문제 ${recordingIndex + 1} 녹음 파일:`, uri);
 
+
+      addRecording('Repeat',uri);
       setRecording(null);
       setRecordingIndex(null);
     } catch (err) {
