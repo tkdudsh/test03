@@ -70,7 +70,7 @@ export default function RepeatSentencePage({ navigation }) {
                 } else if (!recording) {
                   startRecording(index);                 // 녹음 중이 아니면 start
                 } else {
-                  Alert.alert("알림", "다른 문제 녹음 중입니다.");
+                  Alert.alert("다른 문제 녹음 중입니다.");
                 }
               }}
             >
@@ -88,9 +88,9 @@ export default function RepeatSentencePage({ navigation }) {
 
       <TouchableOpacity
         style={[styles.nextButton, { backgroundColor: '#5DADE2' }]}
-        onPress={() => navigation.navigate('Image')}    // ✅ 다음 페이지로 이동
+        onPress={() => navigation.navigate('Image')}    //  다음 페이지로 이동
       >
-        <Text style={styles.buttonText}>다음으로</Text>
+        <Text style={styles.buttonText}>다음 페이지</Text>
       </TouchableOpacity>
     </View>
   );
