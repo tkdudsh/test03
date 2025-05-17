@@ -2,10 +2,12 @@ import React from "react";
 import { TouchableOpacity,StyleSheet ,Text,View,Switch,TextInput,Alert} from "react-native";
 import { KeyboardAvoidingView, ScrollView } from "react-native";
 import{ useState } from "react";
+import useUserStore from "./store/userStore";
 
 export default function AppMainPage({navigation}) {
 
-    const [name, setName] = useState('');
+  const setUser = useUserStore((state) => state.setUser);
+  const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [errGender, setErrGender] = useState(false);
@@ -48,7 +50,13 @@ export default function AppMainPage({navigation}) {
       }
 
       if (!hasError) {
-        navigation.navigate('Tutorial');    
+        setUser({
+      name,
+      age,
+      gender,
+    });
+
+    navigation.navigate('Tutorial'); 
     }
     
 };

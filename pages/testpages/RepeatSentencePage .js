@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import useRecordingsStore from '../store/recordingsStore';
-
 
 export default function RepeatSentencePage({ navigation }) {
   const speechTasks = [
@@ -11,49 +10,66 @@ export default function RepeatSentencePage({ navigation }) {
     "낮말은 새가 듣고 밤말은 쥐가 듣는다"
   ];
 
-  const [recordingIndex, setRecordingIndex] = useState(null);         // 현재 녹음 중인 인덱스
-  const [recording, setRecording] = useState(null);                   // 녹음 객체
-  const [recordings, setRecordings] = useState(Array(speechTasks.length).fill(null));   // 녹음 파일 uri 배열
+  
+  const [recordingIndex, setRecordingIndex] = useState(null);
+  const [recordings, setRecordings] = useState(Array(speechTasks.length).fill(null));
+  const addRecording = useRecordingsStore((state) => state.addRecording);
 
-  const addRecording = useRecordingsStore((state) => state.addRecording); 
-
+  const timerRef = useRef(null);
+  const recordingRef = useRef(null);
   const startRecording = async (index) => {
     try {
+      if (recordingRef.current) return;
+
       await Audio.requestPermissionsAsync();
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       });
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-      );
-      setRecording(recording);
-      setRecordingIndex(index);   // 어떤 문항인지 저장
+      const newRecording = new Audio.Recording();
+      await newRecording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+      await newRecording.startAsync();
+
+      recordingRef.current = newRecording;
+      setRecordingIndex(index);
+
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        stopRecording();
+        setTimeout(() => {
+          Alert.alert("⏱️ 녹음 완료", "1분이 지나 자동으로 녹음이 종료되었습니다.");
+        }, 100);
+      }, 60000);
+
     } catch (err) {
-      console.error('녹음 시작 오류:', err);
+      console.error("녹음 시작 오류:", err);
       Alert.alert("녹음 시작 오류");
     }
   };
 
   const stopRecording = async () => {
     try {
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
+      if (!recordingRef.current) return;
 
-      // recordings 배열 복사 → 현재 문항 index 위치에 파일 uri 저장
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+
+      await recordingRef.current.stopAndUnloadAsync();
+      const uri = recordingRef.current.getURI();
+
       const newRecordings = [...recordings];
       newRecordings[recordingIndex] = uri;
       setRecordings(newRecordings);
 
-      console.log(`문제 ${recordingIndex + 1} 녹음 파일:`, uri);
-
-
-      addRecording('Repeat',uri);
-      setRecording(null);
+      addRecording('Repeat', uri);
+      recordingRef.current = null;
       setRecordingIndex(null);
+       console.log('✅ repeat 저장됨:', uri);
     } catch (err) {
-      console.error('녹음 중지 오류:', err);
+      console.error("녹음 중지 오류:", err);
       Alert.alert("녹음 중지 오류");
     }
   };
@@ -71,17 +87,17 @@ export default function RepeatSentencePage({ navigation }) {
             <TouchableOpacity
               style={styles.recordButton}
               onPress={() => {
-                if (recording && recordingIndex === index) {
-                  stopRecording();                       // 현재 문제 중이면 stop
-                } else if (!recording) {
-                  startRecording(index);                 // 녹음 중이 아니면 start
+                if (recordingRef.current && recordingIndex === index) {
+                  stopRecording();
+                } else if (!recordingRef.current) {
+                  startRecording(index);
                 } else {
                   Alert.alert("다른 문제 녹음 중입니다.");
                 }
               }}
             >
               <Text style={styles.buttonText}>
-                {recording && recordingIndex === index ? '⏹️ 중지' : '🎙️ 녹음'}
+                {recordingRef.current && recordingIndex === index ? '⏹️ 중지' : '🎙️ 녹음'}
               </Text>
             </TouchableOpacity>
 
@@ -94,7 +110,7 @@ export default function RepeatSentencePage({ navigation }) {
 
       <TouchableOpacity
         style={[styles.nextButton, { backgroundColor: '#5DADE2' }]}
-        onPress={() => navigation.navigate('Image')}    //  다음 페이지로 이동
+        onPress={() => navigation.navigate('Image')}
       >
         <Text style={styles.buttonText}>다음 페이지</Text>
       </TouchableOpacity>
@@ -103,9 +119,9 @@ export default function RepeatSentencePage({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAF0', padding: 24, marginTop:40 },
+  container: { flex: 1, backgroundColor: '#FAFAF0', padding: 24, marginTop: 40 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#111' },
-  taskContainer: { marginBottom:30, backgroundColor: '#fff', borderRadius: 10, padding: 15, elevation: 2 },
+  taskContainer: { marginBottom: 30, backgroundColor: '#fff', borderRadius: 10, padding: 15, elevation: 2 },
   taskText: { fontSize: 18, marginBottom: 10, color: '#333' },
   recordButton: { backgroundColor: '#4A90E2', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
   buttonText: { fontSize: 16, color: '#fff', fontWeight: 'bold' },

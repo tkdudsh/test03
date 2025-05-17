@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Image } from 'react-native';
 import { Audio } from 'expo-av';
 import useRecordingsStore from '../store/recordingsStore';
@@ -9,52 +9,73 @@ export default function ImageJudgementPage({ navigation }) {
     "그림 설명하기 (cookie-theft)"
   ];
 
+  const timerRef = useRef(null);
   const [recordingIndex, setRecordingIndex] = useState(null);
   const [recording, setRecording] = useState(null);
   const [recordings, setRecordings] = useState(Array(speechTasks.length).fill(null));
-
-
   const addRecording = useRecordingsStore((state) => state.addRecording);
 
-  const startRecording = async (index) => {
-    try {
-      await Audio.requestPermissionsAsync();
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
+  const recordingRef = useRef(null);
+    const startRecording = async (index) => {
+  try {
+    if (recordingRef.current) return;
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-      );
-      setRecording(recording);
-      setRecordingIndex(index);
-    } catch (err) {
-      console.error('녹음 시작 오류:', err);
-      Alert.alert("녹음 시작 오류");
+    const { granted } = await Audio.requestPermissionsAsync();
+    if (!granted) return;
+
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+    });
+
+    const newRecording = new Audio.Recording();
+    await newRecording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+    await newRecording.startAsync();
+
+    recordingRef.current = newRecording;
+    setRecording(newRecording);  // ✅ 추가
+    setRecordingIndex(index);
+
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      stopRecording();
+      setTimeout(() => {
+        Alert.alert("⏱️ 녹음 완료", "1분이 지나 자동으로 녹음이 종료되었습니다.");
+      }, 100);
+    }, 60000);
+
+  } catch (err) {
+    console.error("녹음 시작 오류:", err);
+    Alert.alert("녹음 시작 오류");
+  }
+};
+
+const stopRecording = async () => {
+  try {
+    if (!recordingRef.current) return;
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
-  };
 
-  const stopRecording = async () => {
-    try {
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
+    await recordingRef.current.stopAndUnloadAsync();
+    const uri = recordingRef.current.getURI();
 
-      const newRecordings = [...recordings];
-      newRecordings[recordingIndex] = uri;
-      setRecordings(newRecordings);
+    const newRecordings = [...recordings];
+    newRecordings[recordingIndex] = uri;
+    setRecordings(newRecordings);
 
-      console.log(`문제 ${recordingIndex + 1} 녹음 파일:`, uri);
-
-      addRecording('Image',url);
-      setRecording(null);
-      setRecordingIndex(null);
-    } catch (err) {
-      console.error('녹음 중지 오류:', err);
-      Alert.alert("녹음 중지 오류");
-    }
-  };
-
+    addRecording('Image', uri);
+    recordingRef.current = null;
+    setRecording(null); // ✅ 추가
+    setRecordingIndex(null);
+     console.log('✅ image 저장됨:', uri);
+  } catch (err) {
+    console.error("녹음 중지 오류:", err);
+    Alert.alert("녹음 중지 오류");
+  }
+};
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🖼️ 이미지 판단하기</Text>

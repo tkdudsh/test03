@@ -10,6 +10,7 @@ import StorytellingPage from './testpages/StorytellingPage ';
 import ImageJudgementPage from './testpages/ImageJudgementPage ';
 import FluencyPage from './testpages/FluencyPage ';
 import CalculationPage from './testpages/CalculationPage ';
+import UploadPage from './Upload';
 
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +28,7 @@ export default function Router() {
         <Stack.Screen name="Story" component={StorytellingPage} />
         <Stack.Screen name="Cal" component={CalculationPage} />
 
+        <Stack.Screen name="Upload" component={UploadPage} />
         <Stack.Screen name="Result" component={ResultPage} />
       </Stack.Navigator>
     </NavigationContainer>

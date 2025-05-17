@@ -1,23 +1,34 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import useResultStore from './store/resultStore';
 
 export default function ResultPage({ navigation }) {
-  const result = '주의가 필요합니다 ⚠️'; // 추후 API 응답 기반으로 변경
+  const results = useResultStore((state) => state.results);
+
+  const totalRisk = Object.values(results).reduce((acc, cur) => acc + cur.confidence, 0) / Object.keys(results).length;
 
   return (
-    <ScrollView style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>📂 녹음 파일 모음</Text>
-      {Object.entries(recordings).map(([page, uris]) => (
-        <View key={page}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{page}</Text>
-          {uris.map((uri, idx) => (
-            <Text key={idx} style={{ color: 'gray' }}>{uri}</Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>🧠 검사 결과 요약</Text>
 
-            
-          ))}
+      <View style={styles.overallBox}>
+        <Text style={styles.overallText}>총 평균 위험도: {Math.round(totalRisk * 100)}%</Text>
+      </View>
+
+      {Object.entries(results).map(([page, result]) => (
+        <View key={page} style={styles.resultCard}>
+          <Text style={styles.pageTitle}>{page}</Text>
+          <Text style={styles.prediction}>예측: {result.prediction}</Text>
+          <Text style={styles.confidence}>신뢰도: {Math.round(result.confidence * 100)}%</Text>
         </View>
-        
       ))}
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('Main')}
+      >
+        <Text style={styles.buttonText}>처음으로 돌아가기</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -26,32 +37,56 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAFAF0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
+    padding: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 40,
-    color: '#111',
-  },
-  resultBox: {
-    backgroundColor: '#FFF3CD',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 40,
-  },
-  resultText: {
-    fontSize: 20,
-    color: '#333',
+    marginBottom: 20,
     textAlign: 'center',
+  },
+  overallBox: {
+    backgroundColor: '#FFE8CC',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  overallText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#cc6600',
+  },
+  resultCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  pageTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  prediction: {
+    fontSize: 16,
+    color: '#333',
+  },
+  confidence: {
+    fontSize: 14,
+    color: '#888',
   },
   button: {
     backgroundColor: '#4A90E2',
     paddingVertical: 14,
-    paddingHorizontal: 40,
     borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 30,
   },
   buttonText: {
     fontSize: 18,
