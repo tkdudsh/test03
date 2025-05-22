@@ -5,9 +5,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AppMainPage from './AppMainPage';
 import TutorialPage from './TutorialPage';
 import ResultPage from './ResultPage';
-import StorytellingPage from './testpages/StorytellingPage ';
-import ImageJudgementPage from './testpages/ImageTemplatePage';
-import FluencyPage from './testpages/FluencyPage ';
 import CalculationPage from './testpages/CalculationPage ';
 import UploadPage from './Upload';
 import Repeat1Page from './testpages/Repeat1Page';
@@ -36,16 +33,16 @@ export default function Router() {
         <Stack.Screen name="Repeat3" component={Repeat3Page} />
 
 
-        <Stack.Screen name="Image" component={ImageJudgementPage} />
+        
         <Stack.Screen name="Image1" component={Image1Page} />
         <Stack.Screen name="Image2" component={Image2Page} />
 
-        <Stack.Screen name="Fluency" component={FluencyPage} />
+        
         <Stack.Screen name="Fluency1" component={Fluency1Page} />
         <Stack.Screen name="Fluency2" component={Fluency2Page} />
         
 
-        <Stack.Screen name="Story" component={StorytellingPage} />
+        
         <Stack.Screen name="Story1" component={Story1Page} />
         <Stack.Screen name="Story2" component={Story2Page} />
         <Stack.Screen name="Story3" component={Story3Page} />
