@@ -11,6 +11,9 @@ import ImageJudgementPage from './testpages/ImageJudgementPage ';
 import FluencyPage from './testpages/FluencyPage ';
 import CalculationPage from './testpages/CalculationPage ';
 import UploadPage from './Upload';
+import Repeat1Page from './testpages/Repeat1Page';
+import Repeat2Page from './testpages/Repeat2Page';
+import Repeat3Page from './testpages/Repeat3Page';
 
 
 const Stack = createNativeStackNavigator();
@@ -23,6 +26,9 @@ export default function Router() {
         <Stack.Screen name="Tutorial" component={TutorialPage} />
 
         <Stack.Screen name="Repeat" component={RepeatSentencepage} />
+        <Stack.Screen name="Repeat1" component={Repeat1Page} />
+        <Stack.Screen name="Repeat2" component={Repeat2Page} />
+        <Stack.Screen name="Repeat3" component={Repeat3Page} />
         <Stack.Screen name="Image" component={ImageJudgementPage} />
         <Stack.Screen name="Fluency" component={FluencyPage} />
         <Stack.Screen name="Story" component={StorytellingPage} />

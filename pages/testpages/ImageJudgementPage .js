@@ -81,7 +81,7 @@ const stopRecording = async () => {
       <Text style={styles.title}>🖼️ 이미지 판단하기</Text>
 
       <Image style={styles.image}
-        source={require('../assets/person.jpg')}  
+        source={require('../assets/Family.jpg')}  
         resizeMode="contain"
       />
 

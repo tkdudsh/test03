@@ -68,7 +68,7 @@ export default function TutorialPage({navigation}) {
       )}
 
 <TouchableOpacity style={styles.recordButton} 
-onPress={function(){navigation.navigate('Repeat')}}>
+onPress={function(){navigation.navigate('Repeat1')}}>
       <Text style={styles.buttonText}>
         테스트 시작
       </Text>
