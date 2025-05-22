@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import useRecordingsStore from '../store/recordingsStore';
 
-export default function ImageTemplatePage({ sentence, imageSource, nextScreen, navigation }) {
+export default function StoryTemplatePage({ sentence, nextScreen, navigation }) {
   const recordingRef = useRef(null);
   const timerRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -50,10 +50,10 @@ export default function ImageTemplatePage({ sentence, imageSource, nextScreen, n
 
       await recordingRef.current.stopAndUnloadAsync();
       const uri = recordingRef.current.getURI();
-      addRecording("Image", uri);
+
+      addRecording('Story', uri);
       setRecorded(true);
       setIsRecording(false);
-      
       recordingRef.current = null;
     } catch (err) {
       console.error("녹음 중지 오류:", err);
@@ -63,21 +63,23 @@ export default function ImageTemplatePage({ sentence, imageSource, nextScreen, n
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🖼️ 이미지 판단하기</Text>
-
-      <Image style={styles.image} source={imageSource} resizeMode="contain" />
+      <Text style={styles.title}>📖 이야기하기</Text>
 
       <View style={styles.taskContainer}>
         <Text style={styles.taskText}>• {sentence}</Text>
+
         <TouchableOpacity
           style={styles.recordButton}
           onPress={isRecording ? stopRecording : startRecording}
         >
           <Text style={styles.buttonText}>
-            {isRecording ? "⏹️ 중지" : "🎙️ 녹음"}
+            {isRecording ? '⏹️ 중지' : '🎙️ 녹음'}
           </Text>
         </TouchableOpacity>
-        {recorded && <Text style={styles.uriText}>녹음 완료 ✔️</Text>}
+
+        {recorded && (
+          <Text style={styles.uriText}>녹음 완료 ✔️</Text>
+        )}
       </View>
 
       <TouchableOpacity
@@ -97,10 +99,9 @@ export default function ImageTemplatePage({ sentence, imageSource, nextScreen, n
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAF0', padding: 24, marginTop: 50, justifyContent: 'space-between' },
+  container: { flex: 1, backgroundColor: '#FAFAF0', padding: 24, marginTop: 40, justifyContent: 'space-between' },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#111' },
-  image: { width: '60%', height: 200, borderRadius: 10, alignSelf: 'center' },
-  taskContainer: { backgroundColor: '#fff', borderRadius: 10, padding: 15, elevation: 2 },
+  taskContainer: { marginBottom: 30, backgroundColor: '#fff', borderRadius: 10, padding: 15, elevation: 2 },
   taskText: { fontSize: 18, marginBottom: 10, color: '#333' },
   recordButton: { backgroundColor: '#4A90E2', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
   buttonText: { fontSize: 16, color: '#fff', fontWeight: 'bold' },

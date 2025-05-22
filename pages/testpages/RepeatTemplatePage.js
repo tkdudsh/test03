@@ -6,7 +6,6 @@ import useRecordingsStore from '../store/recordingsStore';
 export default function RepeatTemplatePage({ sentence, nextScreen, navigation }) {
   const recordingRef = useRef(null);
   const timerRef = useRef(null);
-
   const [isRecording, setIsRecording] = useState(false); // 🔸 녹음 상태 관리
   const [recorded, setRecorded] = useState(false);
   const addRecording = useRecordingsStore((state) => state.addRecording);
@@ -55,6 +54,7 @@ export default function RepeatTemplatePage({ sentence, nextScreen, navigation })
       setRecorded(true);
       setIsRecording(false); // ✅ 녹음 중지 상태 업데이트
 
+      console.log("✅ 저장된 파일 URI:", uri)
       recordingRef.current = null;
     } catch (err) {
       console.error("녹음 중지 오류:", err);
