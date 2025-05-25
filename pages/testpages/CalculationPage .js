@@ -11,7 +11,7 @@ export default function CalculationPage({ navigation }) {
   const recordingRef = useRef(null);
   const addRecording = useRecordingsStore((state) => state.addRecording);
 
-  const startRecording = async () => {
+ const startRecording = async () => {
     try {
       const { granted } = await Audio.requestPermissionsAsync();
       if (!granted) {
@@ -62,15 +62,27 @@ export default function CalculationPage({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🧮 연산 테스트</Text>
-      <Text style={styles.task}>{task}</Text>
 
-      <TouchableOpacity style={styles.recordButton} onPress={recording ? stopRecording : startRecording}>
-        <Text style={styles.buttonText}>{recording ? '⏹️ 중지' : '🎙️ 녹음'}</Text>
-      </TouchableOpacity>
+      <View style={styles.taskContainer}>
+        <Text style={styles.instruction}>🎧 녹음 버튼을 누른 후 아래 문장을 따라 계산을 말하세요</Text>
+        <View style={styles.hr} />
 
-      {recordingUri && <Text style={styles.uriText}>녹음 완료 ✔️</Text>}
+        <Text style={styles.task}>{task}</Text>
 
-      <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('Story1')}>
+        <TouchableOpacity
+          style={styles.recordButton}
+          onPress={recording ? stopRecording : startRecording}
+        >
+          <Text style={styles.buttonText}>{recording ? '⏹️ 중지' : '🎙️ 녹음'}</Text>
+        </TouchableOpacity>
+
+        {recordingUri && <Text style={styles.uriText}>녹음 완료 ✔️</Text>}
+      </View>
+
+      <TouchableOpacity
+        style={[styles.nextButton, { backgroundColor: '#90CAF9' }]}
+        onPress={() => navigation.navigate('Story1')}
+      >
         <Text style={styles.buttonText}>다음으로</Text>
       </TouchableOpacity>
     </View>
@@ -80,9 +92,10 @@ export default function CalculationPage({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF0',
+    backgroundColor: '#FFFDE7',
     padding: 24,
     marginTop: 40,
+    justifyContent: 'space-between',
   },
   title: {
     fontSize: 28,
@@ -91,13 +104,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#111',
   },
+  taskContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    elevation: 2,
+  },
+  instruction: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  hr: {
+    height: 1,
+    backgroundColor: '#CCC',
+    marginVertical: 12,
+    width: '80%',
+    alignSelf: 'center',
+    borderRadius: 1,
+  },
   task: {
-    fontSize: 18,
+    fontSize: 20,
     marginBottom: 20,
     color: '#333',
+    textAlign: 'center',
   },
   recordButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#FFD54F',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -105,7 +139,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    color: '#fff',
+    color: '#333',
     fontWeight: 'bold',
   },
   uriText: {
@@ -115,7 +149,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   nextButton: {
-    backgroundColor: '#5DADE2',
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
