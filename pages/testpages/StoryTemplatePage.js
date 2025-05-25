@@ -1,6 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import {
+  View, Text, StyleSheet, TouchableOpacity, Alert,
+  ScrollView, KeyboardAvoidingView, Platform
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import useRecordingsStore from '../store/recordingsStore';
 
 export default function StoryTemplatePage({ sentence, nextScreen, navigation }) {
@@ -11,106 +16,131 @@ export default function StoryTemplatePage({ sentence, nextScreen, navigation }) 
   const addRecording = useRecordingsStore((state) => state.addRecording);
 
   const startRecording = async () => {
-          try {
-            const permission = await Audio.requestPermissionsAsync();
-            if (!permission.granted) {
-              Alert.alert("마이크 권한이 필요합니다");
-              return;
-            }
-      
-            await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-      
-            const newRecording = new Audio.Recording();
-            await newRecording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
-            await newRecording.startAsync();
-      
-            recordingRef.current = newRecording;
-            setIsRecording(true);
-      
-            timerRef.current = setTimeout(() => {
-              stopRecording();
-              setTimeout(() => {
-                Alert.alert("⏱️ 녹음 완료", "1분이 지나 자동으로 녹음이 종료되었습니다.");
-              }, 100);
-            }, 60000);
-          } catch (err) {
-            console.error("녹음 시작 오류:", err);
-            Alert.alert("녹음 시작 오류");
-          }
-        };
-      
-        const stopRecording = async () => {
-          try {
-            if (!recordingRef.current) return;
-      
-            if (timerRef.current) {
-              clearTimeout(timerRef.current);
-              timerRef.current = null;
-            }
-      
-            await recordingRef.current.stopAndUnloadAsync();
-            const uri = recordingRef.current.getURI();
-            addRecording("Image", uri);
-            setRecorded(true);
-            setIsRecording(false);
-            
-            recordingRef.current = null;
-          } catch (err) {
-            console.error("녹음 중지 오류:", err);
-            Alert.alert("녹음 중지 오류");
-          }
-        };
-  
+    try {
+      const permission = await Audio.requestPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert("마이크 권한이 필요합니다");
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const newRecording = new Audio.Recording();
+      await newRecording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+      await newRecording.startAsync();
+
+      recordingRef.current = newRecording;
+      setIsRecording(true);
+
+      timerRef.current = setTimeout(() => {
+        stopRecording();
+        setTimeout(() => {
+          Alert.alert("⏱️ 녹음 완료", "1분이 지나 자동으로 녹음이 종료되었습니다.");
+        }, 100);
+      }, 60000);
+    } catch (err) {
+      console.error("녹음 시작 오류:", err);
+      Alert.alert("녹음 시작 오류");
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      if (!recordingRef.current) return;
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+
+      await recordingRef.current.stopAndUnloadAsync();
+      const uri = recordingRef.current.getURI();
+      addRecording("Story", uri);
+      setRecorded(true);
+      setIsRecording(false);
+      recordingRef.current = null;
+    } catch (err) {
+      console.error("녹음 중지 오류:", err);
+      Alert.alert("녹음 중지 오류");
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>📖 이야기하기</Text>
-
-      <View style={styles.taskContainer}>
-        <Text style={styles.instruction}>🎧 녹음 버튼을 누른 후 테스트를 진행하세요</Text>
-        <View style={styles.hr} />
-
-        <Text style={styles.taskText}>{sentence}</Text>
-
-        <TouchableOpacity
-          style={styles.recordButton}
-          onPress={isRecording ? stopRecording : startRecording}
-        >
-          <Text style={styles.buttonText}>
-            {isRecording ? '⏹️ 중지' : '🎙️ 녹음'}
-          </Text>
-        </TouchableOpacity>
-
-        {recorded && (
-          <Text style={styles.uriText}>녹음 완료 ✔️</Text>
-        )}
-      </View>
-
-      <TouchableOpacity
-        style={[styles.nextButton, { backgroundColor: '#90CAF9' }]}
-        onPress={() => {
-          if (!recorded) {
-            Alert.alert("녹음 후 진행 가능합니다");
-            return;
-          }
-          navigation.navigate(nextScreen);
-        }}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFDE7' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
-        <Text style={styles.buttonText}>다음</Text>
-      </TouchableOpacity>
-    </View>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
+          <View style={styles.inner}>
+            <Text style={styles.title}>📖 이야기하기</Text>
+            <View style={styles.inner2}>
+              <View style={styles.taskContainer}>
+              <Text style={styles.instruction}>🎧 녹음 버튼을 누른 후 아래 문장을 말해보세요</Text>
+              <View style={styles.hr} />
+              <Text style={styles.taskText}>{sentence}</Text>
+
+              <TouchableOpacity
+                style={styles.recordButton}
+                onPress={isRecording ? stopRecording : startRecording}
+              >
+                <Text style={styles.buttonText}>
+                  {isRecording ? '⏹️ 중지' : '🎙️ 녹음'}
+                </Text>
+              </TouchableOpacity>
+
+              {recorded && (
+                <Text style={styles.uriText}>녹음 완료 ✔️</Text>
+              )}
+            </View>
+
+            <TouchableOpacity
+              style={styles.nextButton}
+              onPress={() => {
+                if (!recorded) {
+                  Alert.alert("녹음 후 진행 가능합니다");
+                  return;
+                }
+                navigation.navigate(nextScreen);
+              }}
+            >
+              <Text style={styles.buttonText}>다음</Text>
+            </TouchableOpacity>
+            </View>
+            
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
+    paddingVertical: 50,
+    paddingHorizontal: 24,
+    alignItems: 'center',
     backgroundColor: '#FFFDE7',
-    padding: 24,
-    marginTop: 40,
-    justifyContent: 'space-between',
+  },
+  inner: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  inner2:{
+    marginTop:130,
   },
   title: {
-    fontSize: 28,
+    fontSize: RFPercentage(3.2),
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
@@ -125,7 +155,7 @@ const styles = StyleSheet.create({
   instruction: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 12,
+    marginBottom: 10,
     textAlign: 'center',
   },
   hr: {
@@ -137,32 +167,36 @@ const styles = StyleSheet.create({
     borderRadius: 1,
   },
   taskText: {
-    fontSize: 20,
-    marginBottom: 20,
+    fontSize: RFPercentage(3),
+    marginBottom: 30,
     color: '#333',
     textAlign: 'center',
   },
   recordButton: {
     backgroundColor: '#FFD54F',
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 14,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  nextButton: {
+    backgroundColor: '#90CAF9',
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 14,
+    marginTop: 10,
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: RFPercentage(2.5),
     fontWeight: 'bold',
+    color: '#333',
   },
   uriText: {
-    fontSize: 14,
-    color: 'green',
+    fontSize: RFPercentage(2),
     marginTop: 10,
+    color: '#4CAF50',
     textAlign: 'center',
-  },
-  nextButton: {
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 20,
   },
 });

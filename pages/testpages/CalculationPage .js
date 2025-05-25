@@ -1,6 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {
+  View, Text, TouchableOpacity, StyleSheet, Alert,
+  ScrollView, KeyboardAvoidingView, Platform
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import useRecordingsStore from '../store/recordingsStore';
 
 export default function CalculationPage({ navigation }) {
@@ -11,7 +16,7 @@ export default function CalculationPage({ navigation }) {
   const recordingRef = useRef(null);
   const addRecording = useRecordingsStore((state) => state.addRecording);
 
- const startRecording = async () => {
+  const startRecording = async () => {
     try {
       const { granted } = await Audio.requestPermissionsAsync();
       if (!granted) {
@@ -60,45 +65,74 @@ export default function CalculationPage({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🧮 연산 테스트</Text>
-
-      <View style={styles.taskContainer}>
-        <Text style={styles.instruction}>🎧 녹음 버튼을 누른 후 아래 문장을 따라 계산을 말하세요</Text>
-        <View style={styles.hr} />
-
-        <Text style={styles.task}>{task}</Text>
-
-        <TouchableOpacity
-          style={styles.recordButton}
-          onPress={recording ? stopRecording : startRecording}
-        >
-          <Text style={styles.buttonText}>{recording ? '⏹️ 중지' : '🎙️ 녹음'}</Text>
-        </TouchableOpacity>
-
-        {recordingUri && <Text style={styles.uriText}>녹음 완료 ✔️</Text>}
-      </View>
-
-      <TouchableOpacity
-        style={[styles.nextButton, { backgroundColor: '#90CAF9' }]}
-        onPress={() => navigation.navigate('Story1')}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFDE7' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
-        <Text style={styles.buttonText}>다음으로</Text>
-      </TouchableOpacity>
-    </View>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
+          <View style={styles.inner}>
+            <Text style={styles.title}>🧮 연산 테스트</Text>
+            <View style={styles.inner2}>
+               <View style={styles.taskContainer}>
+              <Text style={styles.instruction}>🎧 녹음 버튼을 누른 후 아래 문장을 따라 계산을 말하세요</Text>
+              <View style={styles.hr} />
+              <Text style={styles.taskText}>{task}</Text>
+
+              <TouchableOpacity
+                style={styles.recordButton}
+                onPress={recording ? stopRecording : startRecording}
+              >
+                <Text style={styles.buttonText}>
+                  {recording ? '⏹️ 중지' : '🎙️ 녹음'}
+                </Text>
+              </TouchableOpacity>
+
+              {recordingUri && (
+                <Text style={styles.uriText}>녹음 완료 ✔️</Text>
+              )}
+            </View>
+
+            <TouchableOpacity
+              style={styles.nextButton}
+              onPress={() => navigation.navigate('Story1')}
+            >
+              <Text style={styles.buttonText}>다음으로</Text>
+            </TouchableOpacity>
+            </View>
+           
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
+    paddingVertical: 50,
+    paddingHorizontal: 24,
+    alignItems: 'center',
     backgroundColor: '#FFFDE7',
-    padding: 24,
-    marginTop: 40,
-    justifyContent: 'space-between',
   },
+  inner: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  inner2:{
+
+    marginTop:130,
+  },
+  
   title: {
-    fontSize: 28,
+    fontSize: RFPercentage(3.2),
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
@@ -113,7 +147,7 @@ const styles = StyleSheet.create({
   instruction: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 12,
+    marginBottom: 10,
     textAlign: 'center',
   },
   hr: {
@@ -124,34 +158,37 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 1,
   },
-  task: {
-    fontSize: 20,
-    marginBottom: 20,
+  taskText: {
+    fontSize: RFPercentage(3),
+    marginBottom: 30,
     color: '#333',
     textAlign: 'center',
   },
   recordButton: {
     backgroundColor: '#FFD54F',
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 14,
+    marginBottom: 20,
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  buttonText: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  uriText: {
-    fontSize: 14,
-    color: 'green',
-    textAlign: 'center',
-    marginBottom: 12,
   },
   nextButton: {
-    paddingVertical: 14,
-    borderRadius: 12,
+    backgroundColor: '#90CAF9',
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 14,
+    marginTop: 10,
     alignItems: 'center',
-    marginTop: 20,
+  },
+  buttonText: {
+    fontSize: RFPercentage(2.5),
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  uriText: {
+    fontSize: RFPercentage(2),
+    marginTop: 10,
+    color: '#4CAF50',
+    textAlign: 'center',
   },
 });
